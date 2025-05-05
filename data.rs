@@ -1,3 +1,5 @@
+// this module 
+
 use std::error::Error;
 use std::fs::File;
 use std::io::BufReader;
@@ -65,13 +67,12 @@ pub fn encode_peptide_sequence(sequence: &str) -> Vec<u8> {
 pub fn encode_class(class: &str) -> [u8; 3] {
 
     match class.to_lowercase().as_str() {
-        "active" => [1, 0, 0],
-        "inactive" => [0, 1, 0],
-        "very active" => [0, 0, 1],
+        "mod " => [1, 0, 0],
+        "exp" => [0, 1, 0],
+        "very" => [0, 0, 1],
+        "virtual" => [0, 1, 0],
         _ => [0, 0, 0],
     }
-
-    
 }
 
 #[cfg(test)]

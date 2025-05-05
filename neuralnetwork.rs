@@ -9,8 +9,8 @@ pub struct NeuralNetwork {
 }
 
 pub fn generate_random_weights(rows: usize, cols: usize) -> Array2<f32> {
-    let mut rng = rand::thread_rng();
-    Array2::from_shape_fn((rows, cols), |_| rng.gen_range(-0.1..0.1))
+    let mut rng = rand::rng();
+    Array2::from_shape_fn((rows, cols), |_| rng.random_range(-0.1..0.1))
 }
 
 fn sigmoid(x: f32) -> f32 {
