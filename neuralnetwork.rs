@@ -1,6 +1,10 @@
+/// this module builds, trains, and tests a simple  neural network with three layers for 
+/// peptide classification.
+
 use ndarray::Array2;
 use rand::Rng;
 
+/// represents a 3-layer neural network and its learning rate.
 pub struct NeuralNetwork {
     weights_input_to_layer1: Array2<f32>,   
     weights_layer1_to_layer2: Array2<f32>, 
@@ -8,20 +12,39 @@ pub struct NeuralNetwork {
     learning_rate: f32,
 }
 
+
+/// Generates a matrix of random weights using a uniform distribution.
+///
+/// inputs
+/// dimensions of the matrix.
+///
+/// outputs
+/// a 2D array of random float values in range [-0.1, 0.1]
 pub fn generate_random_weights(rows: usize, cols: usize) -> Array2<f32> {
     let mut rng = rand::rng();
     Array2::from_shape_fn((rows, cols), |_| rng.random_range(-0.1..0.1))
 }
 
+/// Sigmoid activation function
 fn sigmoid(x: f32) -> f32 {
     1.0 / (1.0 + (-x).exp())
 }
+
+/// Sigmoid derivative function.
 
 fn sigmoid_derivative(x: &Array2<f32>) -> Array2<f32> {
     x * &(1.0 - x)
 }
 
 impl NeuralNetwork {
+
+    /// Initializes a new neural network with the specified layer sizes and learning rate.
+    ///
+    /// inputs
+    /// sizes for input, layers, learning rate, and output.  
+    /// 
+    /// outputs 
+    /// a neural network 
     pub fn new(_input_size: usize, _layer1_size: usize, _layer2_size: usize, _output_size: usize, _learning_rate: f32) -> Self {
         let weights_input_to_layer1 = generate_random_weights(20, 32);
         let weights_layer1_to_layer2 = generate_random_weights(32, 16);
@@ -35,6 +58,17 @@ impl NeuralNetwork {
         }
     }
 
+    /// forward pass through the network
+    ///
+    /// inputs
+    /// 2D array representing the normalized peptide.
+    ///
+    /// outputs
+    /// activations of all layers
+    ///
+    /// logic 
+    /// matrix multiplications and igmoid activation.
+
     pub fn forward(&self, input: &Array2<f32>) -> (Array2<f32>, Array2<f32>, Array2<f32>) {
         let z1 = input.dot(&self.weights_input_to_layer1);    
         let a1 = z1.mapv(sigmoid);
@@ -47,6 +81,13 @@ impl NeuralNetwork {
 
         return (a1, a2, a3);
     }
+
+    /// Backpropagation and weight updates
+    /// inputs 
+    /// inputs and outputs from each layer and the target label
+    ///
+    /// logic 
+    /// computes layer errors and uses gradients and learning rate to update weights. 
 
     pub fn backward(
         &mut self,
@@ -77,13 +118,24 @@ impl NeuralNetwork {
     
 }
 
+/// trains the neural network using input data and labels
+///
+/// inputs
+/// list of encoded peptides and targets
+/// 
+/// outputs 
+/// prints epoch loss (i wanted to see if the loss converges)
+///
+/// logic
+/// 100 epochs, does forward pass, computes loss, and does backpropagation .
+
 pub fn train(nn: &mut NeuralNetwork, inputs: Vec<Vec<u8>>, targets: Vec<[u8; 3]>) {
     for epoch in 0..100 {
 
         let mut total_loss = 0.0; 
         
         for (input, target) in inputs.iter().zip(targets.iter()) {
-            let input_f32: Vec<f32> = input.iter().map(|&x| x as f32 / 19.0).collect();
+            let input_f32: Vec<f32> = input.iter().map(|&x| x as f32 / 19.0).collect(); //normalzing vectors
             let input_array = Array2::from_shape_vec((1, input.len()), input_f32).unwrap();
 
             let target_f32: Vec<f32> = target.iter().map(|&x| x as f32).collect();
@@ -103,6 +155,17 @@ pub fn train(nn: &mut NeuralNetwork, inputs: Vec<Vec<u8>>, targets: Vec<[u8; 3]>
     println!("Training completed!");
 }
 
+/// tests the trained neural network and prints accuracy.
+///
+/// innputs
+/// endcoded peptides and targets
+/// 
+/// outputs 
+/// accuracy
+///
+/// logic 
+/// forward pass and compares actual vs predicted values and calculates 
+/// and prints accuracy. 
 pub fn test(nn: &NeuralNetwork, test_inputs: Vec<Array2<f32>>, test_targets: Vec<Array2<f32>>) {
     let mut total = 0;
     let mut correct = 0;
