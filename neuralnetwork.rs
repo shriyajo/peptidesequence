@@ -22,7 +22,7 @@ pub struct NeuralNetwork {
 /// a 2D array of random float values in range [-0.1, 0.1]
 pub fn generate_random_weights(rows: usize, cols: usize) -> Array2<f32> {
     let mut rng = rand::rng();
-    Array2::from_shape_fn((rows, cols), |_| rng.random_range(-0.1..0.1))
+    Array2::from_shape_fn((rows, cols), |_| rng.random_range(0.11..0.12))
 }
 
 /// Sigmoid activation function
